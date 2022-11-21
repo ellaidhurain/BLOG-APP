@@ -32,7 +32,7 @@ const Login = (props) => {
 
   const [loading, setLoading] = useState(false);
   const [passwordType, setPasswordType] = useState("password");
-  const [log, setlog] = useState(false);
+ 
 
   const handleChange = (e) => {
     setInputs(() => ({

@@ -1,5 +1,5 @@
-import React from "react";
-import { Box } from "@mui/material";
+import React, { Fragment } from "react";
+import { Box, Button } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardMedia from "@mui/material/CardMedia";
@@ -30,9 +30,11 @@ export const useStyles = makeStyles({
   },
 });
 
-export const Feed = ({userName}) => {
+
+export const Feed = (props) => {
   const classes = useStyles();
   const navigate = useNavigate();
+
 
   const refreshToken = async () => {
     const res = await axios
@@ -45,11 +47,9 @@ export const Feed = ({userName}) => {
     return data;
   };
 
-  const [user, setUser] = useState([
+  const [blogs, setBlogs] = useState([
     { title: "", description: "", user: "", image: "" },
   ]);
-  const [liked, setLiked] = useState(true);
-  const [comments, setComments] = useState(false);
 
   //get all blogs
   const getAllBlogsRequest = async () => {
@@ -59,32 +59,71 @@ export const Feed = ({userName}) => {
       })
       .catch((err) => console.log(err));
 
-    const blogs = await res.data; //get res data and store in variable called data
-    return blogs; //output the result
+    const blogs = await res.data; //get res data and store in variable called blogs
+    return blogs;
   };
 
+  //useEffect is used for fetching data, directly updating the DOM, and timers.
   useEffect(() => {
-    getAllBlogsRequest().then((data) => setUser(data.blogs));
+    //call the function to fetch data from server and save data in blogs array
+    getAllBlogsRequest().then((data) => setBlogs(data.blogs));
 
+    //set interval for update token
     let interval = setInterval(() => {
-      refreshToken().then((data) => setUser(data.data));
+      refreshToken().then((data) => setBlogs(data.blogs));
     }, 100000 * 29);
     return () => clearInterval(interval);
   }, []);
 
-  const date = new Date();
-  const timestamp = date.toDateString();
 
-  const handleComments = () => {
-    setComments(!comments);
-  };
 
+  // store server data in local storage
+  // useEffect(()=>{
+  // pass key and value to setItem
+  // localStorage.setItem("data",JSON.stringify(blogs))
+  // },[blogs])
+
+
+
+  return(
+    <div>
+      {blogs.map((blog, index)=>(
+
+      <Allblogs 
+      title={blog.title}
+      description={blog.description}
+      imageURL={blog.image}
+      userName={blog.Name}
+      />
+
+      ))}
+    </div>
+  )
+}
+  const Allblogs = ({  
+    title,
+    description,
+    imageURL,
+    userName
+  }) =>{
+
+      const [liked, setLiked] = useState(false);
+      const [comments, setComments] = useState(false);
+      const date = new Date();
+      const timestamp = date.toDateString();
+    
+      const increase = () => {
+        setLiked(!liked);
+      };
+    
+      const handleComments = () => {
+        setComments(!comments);
+      };
   return (
     <>
-    <UserBlogs/>
-    
-      {user.map((data) => (
-        <Box flex={4} p={2}>
+      <UserBlogs />
+
+         <Box flex={4} p={2}>
           <Card
             sx={{
               marginBottom: 2,
@@ -95,7 +134,7 @@ export const Feed = ({userName}) => {
             <CardHeader
               avatar={
                 <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-                    {data.user.Name ? data.user.Name.charAt(0) : ""}
+                  {/* {data.user.Name ? data.user.Name.charAt(0) : ""} */}
                 </Avatar>
               }
               action={
@@ -103,31 +142,33 @@ export const Feed = ({userName}) => {
                   <MoreVertIcon />
                 </IconButton>
               }
-              title={data.user.Name}
+              title={userName}
               subheader={timestamp}
             />
 
             <CardMedia
               component="img"
               height="300"
-              image={data.image}
+              image={imageURL}
               alt="Paella dish"
             />
-      
+
             <CardContent onClick={handleComments}>
               <Typography variant="body2" color="text.primary">
-                <h3>{data.title}</h3>
-                {data.description}
+                <h3>{title}</h3>
+                {description}
               </Typography>
             </CardContent>
             <CardActions disableSpacing className="d-flex justify-content-end">
               <IconButton aria-label="add to favorites">
                 <Checkbox
+                  onClick={increase}
                   icon={<FavoriteBorder />}
                   checkedIcon={<Favorite sx={{ color: "red" }} />}
                 />
               </IconButton>
-              <Box style={{ fontSize: "15px" }}>100 likes</Box>
+              {liked && "Liked"}
+
               <IconButton
                 aria-label="delete"
                 sx={{ marginLeft: "10px" }}
@@ -145,7 +186,7 @@ export const Feed = ({userName}) => {
             {comments && <Comments />}
           </Card>
         </Box>
-      ))}
+      
     </>
   );
 };

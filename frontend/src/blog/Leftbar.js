@@ -12,8 +12,17 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import AddBlog from "./AddBlog";
 import GroupIcon from '@mui/icons-material/Group';
 import { Link } from "react-router-dom";
+import MyBlogs from "./myBlogs";
 
 export const Leftbar = (props) => {
+  const pathArray = [
+    { path: "/home", component: <MyBlogs />, id: "home" },
+    { path: "/friends", component: <MyBlogs />, id: "friends" },
+    { path: "/myblogs", component: <MyBlogs />, id: "myblogs" },
+    { path: "/settings", component: <MyBlogs />, id: "settings" },
+
+  ];
+
 
 const  {mode,setMode} = props
   return (
@@ -43,7 +52,7 @@ const  {mode,setMode} = props
           <ListItemIcon>
           <AccountCircleIcon  />
           </ListItemIcon >
-          <ListItemText primary="profile" />
+          <ListItemText primary="MyBlogs" />
         </ListItemButton>
 
         <ListItemButton disablePadding component="a"   href="#home">

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Fragment, useState } from "react";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Fab from "@mui/material/Fab";
@@ -17,9 +17,10 @@ import InsertInvitationIcon from "@mui/icons-material/InsertInvitation";
 import { toast } from "react-toastify";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { Dayjs } from 'dayjs';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { Dayjs } from "dayjs";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import axios from "axios";
+import { Navigate } from "react-router-dom";
 
 axios.defaults.withCredentials = true;
 
@@ -41,12 +42,12 @@ export default function Add() {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
   const [post, setPost] = useState({
     title: "",
     description: "",
     image: "",
   });
-
 
   const onchangehandle = (e) => {
     setPost({
@@ -71,118 +72,126 @@ export default function Add() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(post);
+  
     postBlogRequest()
       .then((data) => console.log(data))
       .then(() => {
         toast.success("Blog added!");
-        handleClose()
+
+        handleClose();
       });
   };
 
   // const [value, setValue] = React.useState<Dayjs | null>(null);
   return (
     <>
-      <Tooltip
-        title="Add Post"
-        sx={{
-          position: "fixed",
-          bottom: 20,
-          left: { xs: "calc(50%-25px)", md: 30 },
-        }}
-      >
-        <IconButton>
-          <Fab onClick={handleOpen} color="primary" aria-label="add">
-            <AddIcon />
-          </Fab>
-        </IconButton>
-      </Tooltip>
-      <div>
-        <StyledModel
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
+      <Fragment>
+        <Tooltip
+          title="Add Post"
+          sx={{
+            position: "fixed",
+            bottom: 20,
+            left: { xs: "calc(50%-25px)", md: 30 },
+          }}
         >
-          <Box
-            width={600}
-            height={550}
-            bgcolor={"background.default"}
-            color={"text.primary"}
-            p={2}
-            borderRadius={5}
+          <IconButton>
+            <Fab onClick={handleOpen} color="primary" aria-label="add">
+              <AddIcon />
+            </Fab>
+          </IconButton>
+        </Tooltip>
+        <div>
+          <StyledModel
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
           >
-            <Typography variant="h6" color="grey" textAlign="center">
-              Create Post
-            </Typography>
-            <UserBox className="d-flex">
-              <Avatar alt="Remy Sharp" src="/static/use2.png" />
-              <Typography variant="h6" ent>
-                ellai
-              </Typography>
-            </UserBox>
-            <TextField
-              name="title"
-              sx={{ width: "100%", pt: 5 }}
-              id="standard-multiline-static"
-              rows={4}
-              label="title"
-              variant="standard"
-              onChange={onchangehandle}
-              value={post.title}
-            />
-
-            <TextField
-              name="description"
-              sx={{ width: "100%", pt: 5, mt: 2, mb: 3 }}
-              id="standard-multiline-static"
-              onChange={onchangehandle}
-              rows={4}
-              label="description"
-              variant="standard"
-              value={post.description}
-            />
-
-            <TextField
-              name="image"
-              sx={{ width: "100%", pt: 5 }}
-              id="standard-multiline-static"
-              rows={4}
-              label="imageURL"
-              variant="standard"
-              onChange={onchangehandle}
-              // value={post.image}
-            />
-            <Stack direction="row" gap={1} mt={2} mb={3}>
-              <InsertEmoticonIcon color="success" />
-              <VideoChatIcon color="secondary" />
-              <AudioFileIcon color="success" />
-              <ImageIcon color="error" />
-            </Stack>
-
-            <ButtonGroup
-              fullWidth
-              variant="contained"
-              aria-label="outlined primary button group"
+            <Box
+              width={700}
+              height={600}
+              bgcolor={"background.default"}
+              color={"text.primary"}
+              p={2}
+              borderRadius={5}
             >
-              <Button onClick={handleSubmit}>Post</Button>
-              <Button sx={{ width: "100px" }}>
-              
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Basic example"
-                    // value={value}
-                    onChange={(newValue) => {
-                      // setValue(newValue);
-                    }}
-                    renderInput={(params) =>   <InsertInvitationIcon {...params}/>}
-                  />
-                </LocalizationProvider>
-              </Button>
-            </ButtonGroup>
-          </Box>
-        </StyledModel>
-      </div>
+              <Typography variant="h6" color="grey" textAlign="center">
+                Create Post
+              </Typography>
+              <UserBox className="d-flex">
+                <Avatar alt="Remy Sharp" src="/static/use2.png" />
+                <Typography variant="h6" ent>
+                  ellai
+                </Typography>
+              </UserBox>
+              <TextField
+                name="title"
+                sx={{ width: "100%", pt: 5 }}
+                id="standard-multiline-static"
+                rows={4}
+                label="title"
+                variant="standard"
+                onChange={onchangehandle}
+                value={post.title}
+                placeholder="type your headline here"
+              />
+
+              <TextField
+                name="description"
+                sx={{ width: "100%", pt: 5, mt: 2, mb: 3 }}
+                id="standard-multiline-static"
+                onChange={onchangehandle}
+                rows={4}
+                label="description"
+                variant="standard"
+                value={post.description}
+                multiline
+                placeholder="type something you love"
+              />
+
+              <TextField
+                name="image"
+                sx={{ width: "100%", pt: 5 }}
+                id="standard-multiline-static"
+                rows={4}
+                label="imageURL"
+                variant="standard"
+                placeholder="paste image url here"
+                onChange={onchangehandle}
+                value={post.image}
+              />
+              <Stack direction="row" gap={1} mt={2} mb={3}>
+                <InsertEmoticonIcon color="success" />
+                <VideoChatIcon color="secondary" />
+                <AudioFileIcon color="success" />
+                <ImageIcon color="error" />
+              </Stack>
+
+              <ButtonGroup
+                fullWidth
+                variant="contained"
+                aria-label="outlined primary button group"
+              >
+                <Button onClick={handleSubmit}>Post</Button>
+                <Button sx={{ width: "100px" }}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Basic example"
+                      // value={value}
+                      onChange={(newValue) => {
+                        // setValue(newValue);
+                      }}
+                      renderInput={(params) => (
+                        <InsertInvitationIcon {...params} />
+                      )}
+                    />
+                  </LocalizationProvider>
+                </Button>
+              </ButtonGroup>
+            </Box>
+          </StyledModel>
+        </div>
+      </Fragment>
     </>
   );
 }

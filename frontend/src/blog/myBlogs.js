@@ -48,8 +48,9 @@ const UserBox = styled(Box)(({ theme }) => ({
   marginLeft: "10px",
 }));
 
-export const UserBlogs = () => {
-  const [userId, setUserId] = useState();
+export const UserBlogs = (props) => {
+
+  const [userData, setUserData] = useState([]);
   const id = localStorage.getItem("userId");
 
   const getOneUserRequest = async () => {
@@ -61,17 +62,18 @@ export const UserBlogs = () => {
   };
 
   useEffect(() => {
-    getOneUserRequest().then((data) => setUserId(data.user));
+    getOneUserRequest().then((data) => setUserData(data.user));
+   
   }, []);
 
-  console.log(userId);
 
   return (
+
     <div>
       {" "}
-      {userId &&
-        userId.blogs &&
-        userId.blogs.map((blog, index) => (
+      {userData &&
+        userData.blogs &&
+        userData.blogs.map((blog, index) => (
           <>
             <MyBlogs
               blogId={blog._id}
@@ -79,33 +81,34 @@ export const UserBlogs = () => {
               title={blog.title}
               description={blog.description}
               imageURL={blog.image}
-              userName={userId.Name}
+              userName={userData.Name}
+             
             />
           </>
         ))}
     </div>
   );
 };
+
 export default function MyBlogs({
+
   blogId,
   title,
   description,
   imageURL,
   userName,
+
  
 }) {
   const navigate = useNavigate();
-
   const id = useParams().blogId;
 
   const [inputs, setInputs] = useState({});
-  const [liked, setLiked] = useState(true);
+  const [liked, setLiked] = useState(false);
   const [comments, setComments] = useState(false);
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  
-
 
   useEffect(() => {
     setInputs({
@@ -115,6 +118,8 @@ export default function MyBlogs({
     });
   }, [id]);
 
+
+
   const updateRequest = async () => {
     const res = await axios
       .put(`http://localhost:5000/api/blog/updateOneBlog/${blogId}`, {
@@ -123,43 +128,40 @@ export default function MyBlogs({
         image: inputs.image,
       })
       .catch((err) => console.log(err));
+    
     const data = res.data;
     return data;
   };
 
   const handleUpdate = (e) => {
     e.preventDefault();
-    updateRequest().then(() => {
-      toast.success("succesfully updated");
-      navigate("/home");
+    updateRequest().then((data) => {
+      toast.success("succesfully updated");  
       handleClose();
     });
   };
 
   const deleteRequest = async () => {
     //save api response in variable called res
-    await axios
+   const res = await axios
       .delete(`http://localhost:5000/api/blog/deleteOneBlog/${blogId}`, {
         withCredentials: true,
       })
       .catch((err) => console.log(err));
+      const data = res.data;
+      return data;
   };
 
+
+  
   const handleDelete = () => {
     deleteRequest()
-      .then(() => navigate("/"))
-      // .then(() => navigate("/home"))
+  
       .then(() => {
-        toast.success("succesfully deleted");
+        toast.success("successfully deleted");
+        setInputs({...inputs})
+        navigate('/home')
       });
-  };
-
-  const date = new Date();
-  const timestamp = date.toDateString();
-
-
-  const handleComments = () => {
-    setComments(!comments);
   };
 
   const onChangeHandle = (e) => {
@@ -170,10 +172,22 @@ export default function MyBlogs({
     e.preventDefault();
   };
 
+  const date = new Date();
+  const timestamp = date.toDateString();
+
+  const increase = () =>{
+    setLiked(!liked);
+  }
+
+  const handleComments = () => {
+    setComments(!comments);
+  };
+
 
   return (
     <>
       <div>
+
         <Box flex={4} p={2}>
           <Card
             sx={{
@@ -212,11 +226,14 @@ export default function MyBlogs({
             <CardActions disableSpacing className="d-flex justify-content-end">
               <IconButton aria-label="add to favorites">
                 <Checkbox
+                 onClick={increase}
                   icon={<FavoriteBorder />}
                   checkedIcon={<Favorite sx={{ color: "red" }} />}
+                 
                 />
               </IconButton>
-              <Box style={{ fontSize: "15px" }}>100 likes</Box>
+              {liked && "Liked"}
+              
               <IconButton
                 aria-label="delete"
                 sx={{ marginLeft: "10px" }}
@@ -257,8 +274,8 @@ export default function MyBlogs({
           aria-describedby="modal-modal-description"
         >
           <Box
-            width={600}
-            height={550}
+            width={700}
+            height={600}
             bgcolor={"background.default"}
             color={"text.primary"}
             p={2}
@@ -293,6 +310,7 @@ export default function MyBlogs({
               label="description"
               variant="standard"
               value={inputs.description}
+              multiline
             />
 
             <TextField
@@ -301,6 +319,7 @@ export default function MyBlogs({
               id="standard-multiline-static"
               rows={4}
               label="imageURL"
+              placeholder="paste image url here"
               variant="standard"
               onChange={onChangeHandle}
               value={inputs.image}
