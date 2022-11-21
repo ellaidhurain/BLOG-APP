@@ -47,16 +47,18 @@ const refreshToken = (req, res, next) => {
   
       //req new token
       const token = jwt.sign({ id: user.id },"secret_key", {
-        expiresIn: "24h",
+        expiresIn: "10m",
       });
       console.log("Regenerated Token\n", token);
   
       //send token from cookies
       res.cookie(String(user.id), token, {
         path: "/",
-        expires: new Date(Date.now() + 10000 * 300), // 30 seconds
+        expires: new Date(Date.now() + 1000 * 300), // 30 seconds
         httpOnly: true,
-        sameSite: "lax",
+        // sameSite: "strict", //not allows cross-site request. very safe
+        sameSite: "lax", // allows GET only for cross-site request
+        secure:"true"
       });
   
       req.id = user.id;

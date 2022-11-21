@@ -55,7 +55,7 @@ const login = async (req, res, next) => {
 
   //if valid create token for user
   const token = jwt.sign({ id: existingUser._id }, "secret_key", {
-    expiresIn: "24h",
+    expiresIn: "10m",
   });
 
   console.log("Generated Token\n", token);
@@ -68,9 +68,10 @@ const login = async (req, res, next) => {
   //send token from cookies.
   res.cookie(String(existingUser._id), token, {
     path: "/",
-    expires: new Date(Date.now() + 10000 * 30), // 30 seconds
+    expires: new Date(Date.now() + 1000 * 30), // 30 seconds
     httpOnly: true,
     sameSite: "lax",
+    secure:"true"
   });
 
   return res
